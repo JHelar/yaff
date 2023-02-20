@@ -1,0 +1,127 @@
+// Component yaff, empty child 
+component container() = <div class="css-class3">{children}</div>
+
+// Component yaff, one value
+component title(title) = <h1 class="css-class1 class2">{title}</h1>
+
+// Component yaff, multiple values
+component keyvalue(key, value) = <h1 class="css-class1 class2"><b>{key}</b>{value}</h1>
+
+// Component yaff, slots 
+component box(header, body) = <div>
+    <h2>{header}</h2>
+    <p>{body}</p>
+</div>
+
+// html tag overload
+component div = <div class="default-div-class">{children}</div>
+
+// yaff example code
+<div>
+    <title ("Hello") />
+    <keyvalue ("Foo", "Bar") />
+    <container>
+        <title ("Hej") />
+    </container>
+    <box (<title ("Box header") />, <keyvalue ("foo", "bar") />) />
+</div>
+
+
+// AST
+Component(
+    "div",
+    [],
+    [
+       Component(
+            "title",
+            [
+                Sym("Hello")
+            ],
+            []
+       ),
+       Component(
+            "keyvalue",
+            [
+                Sym("Foo"), 
+                Sym("Bar")
+            ],
+            []
+       ),
+       Component(
+            "container",
+            [],
+            [
+                Component(
+                    "title",
+                    [
+                        Sym("Hej")
+                    ],
+                    []
+                )
+            ]
+        ),
+        Component(
+            "box",
+            [
+                Component(
+                    "title",
+                    [
+                        Sym("Box header")
+                    ],
+                    []
+                ),
+                Component(
+                    "keyvalue",
+                    [
+                        Sym("foo"),
+                        Sym("bar")
+                    ],
+                    []
+                )
+            ]
+        )
+    ]
+)
+
+
+
+let page_header = Component {
+        name: "pageHeader".to_string(),
+        args: vec!["person".to_string()],
+        body: Expr::Elements(
+                vec![
+                    Expr::Element(
+                        "title".to_string(), 
+                        vec![], 
+                        HashMap::from([("phrase".to_string(), Expr::Elements(vec![Expr::Value("Hello there ".to_string()), Expr::Prop("person".to_string())]))])
+                    ),
+                    Expr::Element(
+                        "h2".to_string(), 
+                        vec![Expr::Value("And Welcome ".to_string()), Expr::Prop("person".to_string())], 
+                        HashMap::from([])
+                    ),
+                ]
+            )
+    };
+
+    // comp title(phrase) = <h1 class="another-styling-class">This is the title<p>{phrase}</p><h1>
+    let title = Component {
+        name: "title".to_string(),
+        args: vec!["phrase".to_string()],
+        body: Expr::Element(
+            "h1".to_string(),
+            vec![Expr::Value("This is the title".to_string()), Expr::Element(
+                "p".to_string(),
+                vec!(Expr::Prop("phrase".to_string())),
+                HashMap::from([])
+            )],
+            HashMap::from([("class".to_string(), Expr::Value("another-styling-class".to_string()))])
+        )
+    };
+
+    let components = HashMap::from([("pageHeader".to_string(), &page_header), ("title".to_string(), &title)]);
+    let data = HashMap::from([("person".to_string(), Expr::Value("Steven".to_string()))]);
+    let result = page_header.compile(&data, &components);
+
+    println!("{}", page_header);
+    println!("{}", result);

@@ -1,0 +1,10 @@
+comp heading = <h2>Heading</h2>
+comp greeting(name) = <div>
+    <h1>Hej {name}</h1>
+    {comp:children}
+</div>
+
+<div>
+    <greeting name="John"><heading /></greeting>
+    <greeting name="Hopp"/>
+</div>
